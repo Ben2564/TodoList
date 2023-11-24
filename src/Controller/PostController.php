@@ -14,7 +14,7 @@ class PostController extends AbstractController
      */
     public function index(): Response
     {
-        require(__DIR__.'/../data/posts.php');
+        require(__DIR__.'/../../data/posts.php');
         $posts = json_decode($posts);
         dump($posts);
         return $this->render('post/index.html.twig', [
