@@ -20,8 +20,22 @@ class TodoController extends AbstractController
      */
     public function index(TodoRepository $todoRepository): Response
     {
+        if (isset($_REQUEST["OrderBy"]) && isset($_REQUEST["Order"])){
+            $orderBy = $_REQUEST["OrderBy"];
+            $order = $_REQUEST["Order"];
+            if ($order == "ASC"){
+                $orderSort = "DESC";
+            } else {
+                $orderSort = "ASC";
+            }
+        } else {
+            $orderBy = "name";
+            $order = "ASC";
+            $orderSort = "DESC";
+        }
         return $this->render('todo/index.html.twig', [
-            'todos' => $todoRepository->findAll(),
+            'varord' => $orderSort,
+            'todos' => $todoRepository->findByOrdered($orderBy,$order),
         ]);
     }
 
