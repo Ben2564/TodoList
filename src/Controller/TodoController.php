@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Todo;
 use App\Form\TodoType;
 use App\Repository\TodoRepository;
+use App\Form\DoneType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,10 +17,20 @@ use Symfony\Component\Routing\Annotation\Route;
 class TodoController extends AbstractController
 {
     /**
-     * @Route("/", name="app_todo_index", methods={"GET"})
+     * @Route("/", name="app_todo_index", methods={"GET", "POST"})
      */
-    public function index(TodoRepository $todoRepository): Response
+    public function index(Request $request, TodoRepository $todoRepository): Response
     {
+        $form = $this->createForm(DoneType::class);
+        $form->handleRequest($request);
+        $data = $form->getData();
+        $etat = false;
+        $searchTerms = false;
+        if(isset($data["done"])){
+            $etat = $data["done"];
+        }
+        $searchTerms = $form->get('searchTerms')->getData();
+        
         if (isset($_REQUEST["OrderBy"]) && isset($_REQUEST["Order"])){
             $orderBy = $_REQUEST["OrderBy"];
             $order = $_REQUEST["Order"];
@@ -35,7 +46,8 @@ class TodoController extends AbstractController
         }
         return $this->render('todo/index.html.twig', [
             'varord' => $orderSort,
-            'todos' => $todoRepository->findByOrdered($orderBy,$order),
+            'todos' => $todoRepository->findByOrdered($searchTerms,$orderBy,$order,$etat),
+            'form' => $form->createView()
         ]);
     }
 

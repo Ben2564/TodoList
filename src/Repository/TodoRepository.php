@@ -39,9 +39,21 @@ class TodoRepository extends ServiceEntityRepository
         }
     }
 
-    public function findByOrdered($orderBy,$order) : array {
-        $qb = $this->createQueryBuilder('t')->orderBy('t.'.$orderBy, $order)->getQuery()->getResult();
-        return $qb;
+    public function findByOrdered($searchTerms,$orderBy,$order, $etat) : array {
+        $qb = $this->createQueryBuilder('t')->orderBy('t.'.$orderBy, $order);
+
+        if($searchTerms != false){
+            $qb
+            ->where('t.name LIKE :val')
+            ->setParameter('val', '%'.$searchTerms.'%') ;
+        }
+
+        if($etat){
+            $qb->where('t.done = :done')
+            ->setParameter('done', 0);
+        }
+        
+        return $qb->getQuery()->getResult();
     }
 
 //    /**
