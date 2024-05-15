@@ -56,6 +56,24 @@ class TodoRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    public function findTodoBySearch($search)
+    {
+        return $this->createQueryBuilder('t')
+        ->andWhere('t.name LIKE :search')
+        ->setParameter('search', '%' . $search . '%')
+        ->getQuery()
+        ->getResult();
+    }
+
+    public function findTodoByCheck()
+    {
+        return $this->createQueryBuilder('t')
+        ->andWhere('t.done = :check')
+        ->setParameter('check', 'false')
+        ->getQuery()
+        ->getResult();
+    }
+
 //    /**
 //     * @return Todo[] Returns an array of Todo objects
 //     */

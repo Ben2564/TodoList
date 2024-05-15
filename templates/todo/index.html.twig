@@ -5,11 +5,11 @@
 {% block body %}
     <h1>Todo index</h1>
 
-    {{ form_start(form) }}
-        {{ form_row(form.searchTerms) }}
-        {{ form_row(form.done)}}
-        <input type='submit' name='submit' value='Envoyer'>
-    {{ form_end(form) }}
+    
+    <input id="checkbox" type='checkbox' name='checkbox'>
+
+    <input id="search" type='search' name='search'>
+
 
     <table class="table">
         <thead>
@@ -24,10 +24,10 @@
         <tbody>
         {% for todo in todos %}
             <tr>
-                <td>{{ todo.id }}</td>
+                <td class="id">{{ todo.id }}</td>
                 <td>{{ todo.name }}</td>
                 <td>{{ todo.description }}</td>
-                <td>{{ todo.done }}</td>
+                <td class="done">{% if todo.done == 1 %} fait {% else %} à faire {% endif %}</td>
                 <td>
                     <a href="{{ path('app_todo_show', {'id': todo.id}) }}">show</a>
                     <a href="{{ path('app_todo_edit', {'id': todo.id}) }}">edit</a>

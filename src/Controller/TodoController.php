@@ -6,10 +6,13 @@ use App\Entity\Todo;
 use App\Form\TodoType;
 use App\Repository\TodoRepository;
 use App\Form\DoneType;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
 
 /**
  * @Route("/todo")
@@ -73,7 +76,33 @@ class TodoController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="app_todo_show", methods={"GET"})
+     * @Route("/search", name="app_todo_search", methods={"POST"})
+     */
+    public function search(Request $request, TodoRepository $todoRepository): JsonResponse
+    {
+        $requestData = json_decode($request->getContent(), true);
+        $searchData = $requestData['search'];
+        $results = $todoRepository->findTodoBySearch($searchData);
+        return $this->json($results);
+    }
+
+    /**
+     * @Route("/check", name="app_todo_check", methods={"POST"})
+     */
+    public function check(Request $request, TodoRepository $todoRepository): JsonResponse
+    {
+        $requestData = json_decode($request->getContent(), true);
+        $checkData = $requestData['check'];
+        if($checkData === "true"){
+            $results = $todoRepository->findTodoByCheck();
+        }else{
+            $results = $todoRepository->findAll();
+        }
+        return $this->json($results);
+    }
+
+    /**
+     * @Route("/{id}", name="app_todo_show", methods={"GET"}, requirements={"id"="\d+"})
      */
     public function show(Todo $todo): Response
     {
@@ -112,5 +141,16 @@ class TodoController extends AbstractController
         }
 
         return $this->redirectToRoute('app_todo_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    /**
+     * @Route("/done/{id}", name="app_todo_done", methods={"GET"})
+     */
+    public function done(Request $request, Todo $todo, TodoRepository $todoRepository, EntityManagerInterface $em): Response
+    {
+        $todo->setDone(!$todo->isDone());
+        $em->persist($todo);
+        $em->flush();
+        return $this->json(["Sucess",$todo->isDone()]);
     }
 }
